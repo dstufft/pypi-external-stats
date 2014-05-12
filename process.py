@@ -9,7 +9,8 @@ def process(data):
         "internal": [],
         "external1": [],
         "external2": [],
-        "unsafe": [],
+        "unsafe1": [],
+        "unsafe2": [],
     }
     for project, (internal, external, unsafe) in data.iteritems():
         total = len(internal + external + unsafe)
@@ -27,7 +28,13 @@ def process(data):
                 processed["external2"].append(project)
 
         if unsafe:
-            processed["unsafe"].append(project)
+            # Figure out what percent of them are unsafe
+            percent = (len(unsafe) / total) * 100
+
+            if percent < 50:
+                processed["unsafe1"].append(project)
+            else:
+                processed["unsafe2"].append(project)
 
     return {k: sorted(v) for k, v in processed.iteritems()}
 
@@ -46,7 +53,11 @@ def main():
     print("Hosted Externally: {}".format(
         len(processed["external1"] + processed["external2"])
     ))
-    print("Hosted Unsafely: {}".format(len(processed["unsafe"])))
+    print("Hosted Unsafely (<50%): {}".format(len(processed["unsafe1"])))
+    print("Hosted Unsafely (>50%): {}".format(len(processed["unsafe2"])))
+    print("Hosted Unsafely: {}".format(
+        len(processed["unsafe1"] + processed["unsafe2"]))
+    )
 
     # Save data
     with open("processed.json", "w") as fp:
